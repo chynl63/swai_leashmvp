@@ -121,12 +121,12 @@ export default function Walk() {
         자세히 보기
       </button>
 
-      {/* 데모 편의: 줄 끊기(인터럽트) 진입 — 실제 앱에선 차단 앱 실행 시 자동 */}
+      {/* 홈 버튼을 눌러 나가서 차단된 앱을 직접 열어보는 흐름 */}
       <button
-        onClick={() => router.push("/demo/interrupt")}
+        onClick={() => router.push("/demo/springboard")}
         className="mb-6 text-[12px] text-ink-3 underline underline-offset-2"
       >
-        차단된 앱 열어보기 (시뮬)
+        🏠 홈 화면으로 나가기
       </button>
     </div>
   );

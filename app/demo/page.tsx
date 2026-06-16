@@ -220,11 +220,14 @@ function Blocking() {
       </div>
 
       <button
-        onClick={() => router.push("/demo/interrupt")}
+        onClick={() => router.push("/demo/springboard")}
         className="btn-soft mt-2 py-3.5 text-[15px]"
       >
-        📱 차단된 앱 열어보기 (시뮬)
+        🏠 홈 화면으로 나가기
       </button>
+      <p className="-mt-2 text-center text-[12px] text-ink-3">
+        또는 아래 홈 버튼(가로 바)을 눌러보세요
+      </p>
     </div>
   );
 }

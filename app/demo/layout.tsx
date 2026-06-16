@@ -1,5 +1,6 @@
 import StatusBar from "@/components/StatusBar";
 import DemoToggle from "@/components/DemoToggle";
+import HomeIndicator from "@/components/HomeIndicator";
 
 /**
  * 데모 "화면" 레이아웃 — 기기 베젤 없이 화면 콘텐츠만 채운다.
@@ -18,9 +19,7 @@ export default function DemoLayout({
         {children}
       </div>
       <DemoToggle />
-      <div className="flex h-[22px] shrink-0 items-center justify-center">
-        <div className="h-[5px] w-[134px] rounded-full bg-black/80" />
-      </div>
+      <HomeIndicator />
     </div>
   );
 }
