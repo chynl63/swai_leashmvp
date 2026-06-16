@@ -98,7 +98,8 @@ export function watchApproval(
   cb: (status: ApprovalStatus) => void
 ): () => void {
   if (supabase) {
-    const ch = supabase
+    const sb = supabase;
+    const ch = sb
       .channel(`approval-${token}`)
       .on(
         "postgres_changes",
@@ -115,7 +116,7 @@ export function watchApproval(
       )
       .subscribe();
     return () => {
-      supabase.removeChannel(ch);
+      sb.removeChannel(ch);
     };
   }
 

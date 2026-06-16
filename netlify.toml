@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Next.js 15 App Router 지원 (SSR/동적 라우트 /approve/[token] 포함)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

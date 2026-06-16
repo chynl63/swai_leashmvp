@@ -1,7 +1,6 @@
-@import "tailwindcss";
-
-/* Pretendard (CDN) */
+/* Pretendard (CDN) — @import는 다른 규칙보다 먼저 와야 함 */
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+@import "tailwindcss";
 
 /* ── Leash Design Tokens (spec §2) ──────────────────────────── */
 @theme {
