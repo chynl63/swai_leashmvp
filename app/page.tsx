@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import Character from "@/components/Character";
 import Footprints from "@/components/Footprints";
 import PhoneDevice from "@/components/PhoneDevice";
 import AdviceForm from "@/components/AdviceForm";
+import { logVisit } from "@/lib/visitor";
 
 const STEPS = [
   { n: "01", t: "목줄을 채운다", d: "차단할 앱과 시간을 정하고 산책을 시작합니다." },
@@ -22,6 +24,10 @@ const BARRIERS = [
 ];
 
 export default function Landing() {
+  useEffect(() => {
+    logVisit();
+  }, []);
+
   return (
     <main className="min-h-[100dvh] w-full bg-bg text-ink">
       {/* ── Header ── */}

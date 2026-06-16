@@ -4,7 +4,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLeash } from "@/lib/store";
 import { useMounted, useBlockTimer } from "@/lib/hooks";
-import { PROFILES, DURATIONS, APPS } from "@/lib/profiles";
+import {
+  PROFILES,
+  DURATIONS,
+  APPS,
+  CANON_ORDER,
+  BARRIER_LABEL,
+  summaryFor,
+} from "@/lib/profiles";
 import TabBar from "@/components/TabBar";
 import TimerCard from "@/components/TimerCard";
 import Footprints from "@/components/Footprints";
@@ -28,18 +35,17 @@ export default function Home() {
 function Setup() {
   const router = useRouter();
   const {
-    profileKey,
-    setProfile,
+    groupName,
+    barriers,
+    applyPreset,
+    toggleBarrier,
     blockedApps,
     toggleApp,
     durationMinutes,
     setDuration,
-    walkMinutes,
-    breaks,
     startBlock,
   } = useLeash();
 
-  const profile = PROFILES.find((p) => p.key === profileKey) ?? PROFILES[0];
   const durIdx = DURATIONS.indexOf(durationMinutes as (typeof DURATIONS)[number]);
   const stepDur = (dir: number) => {
     const next = Math.min(
@@ -48,32 +54,30 @@ function Setup() {
     );
     setDuration(DURATIONS[next]);
   };
-  const durLabel = (m: number) => (m % 60 === 0 ? `${m / 60}h` : `${m}m`);
+  const durLabel = (m: number) => (m % 60 === 0 ? `${m / 60}시간` : `${m}분`);
 
+  const canStart = blockedApps.length > 0 && barriers.length > 0;
   const start = () => {
-    if (blockedApps.length === 0) return;
+    if (!canStart) return;
     startBlock();
     router.push("/demo/walk");
   };
 
   return (
     <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 pt-3 no-scrollbar">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[26px] font-bold text-ink">Leash</h1>
-        <span className="text-[20px]">⚙️</span>
-      </div>
+      <h1 className="text-[26px] font-bold text-ink">Leash</h1>
 
       <div className="glass-card flex flex-col gap-5 p-5">
-        {/* 프로필 선택 */}
+        {/* 빠른 설정 (프리셋) */}
         <div>
-          <label className="text-[13px] text-ink-2">차단 프로필</label>
+          <label className="text-[13px] text-ink-2">빠른 설정</label>
           <div className="mt-2 flex gap-2">
             {PROFILES.map((p) => (
               <button
                 key={p.key}
-                onClick={() => setProfile(p.key)}
+                onClick={() => applyPreset(p.key)}
                 className={`flex flex-1 flex-col items-center gap-1 rounded-xl border py-2.5 transition ${
-                  p.key === profileKey
+                  p.name === groupName
                     ? "border-ochre bg-ochre-light"
                     : "border-line bg-white"
                 }`}
@@ -83,14 +87,11 @@ function Setup() {
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[12px] text-ink-3">
-            줄 끊기 벌칙 · {profile.summary}
-          </p>
         </div>
 
         {/* 앱 선택 */}
         <div>
-          <label className="text-[13px] text-ink-2">묶을 앱 선택</label>
+          <label className="text-[13px] text-ink-2">묶을 앱</label>
           <div className="mt-2 flex flex-wrap gap-3">
             {APPS.map((a) => {
               const on = blockedApps.includes(a.name);
@@ -122,7 +123,7 @@ function Setup() {
             >
               ◀
             </button>
-            <span className="tnum w-[64px] text-center text-[28px] font-semibold text-ochre">
+            <span className="tnum w-[80px] text-center text-[26px] font-semibold text-ochre">
               {durLabel(durationMinutes)}
             </span>
             <button
@@ -134,22 +135,57 @@ function Setup() {
           </div>
         </div>
 
+        {/* 해제 벌칙 직접 선택 */}
+        <div>
+          <label className="text-[13px] text-ink-2">
+            해제 벌칙 <span className="text-ink-3">(설정 후 변경 불가)</span>
+          </label>
+          <div className="mt-2 grid grid-cols-1 gap-2">
+            {CANON_ORDER.map((b) => {
+              const on = barriers.includes(b);
+              const meta = BARRIER_LABEL[b];
+              const order = on ? barriers.indexOf(b) + 1 : null;
+              return (
+                <button
+                  key={b}
+                  onClick={() => toggleBarrier(b)}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                    on ? "border-ochre bg-ochre-light" : "border-line bg-white"
+                  }`}
+                >
+                  <span className="text-[18px]">{meta.emoji}</span>
+                  <span className="flex-1 text-[14px] font-medium text-ink">
+                    {meta.label}
+                  </span>
+                  <span className="text-[12px] text-ink-3">{meta.short}</span>
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
+                      on ? "bg-ochre text-white" : "bg-muted text-ink-3"
+                    }`}
+                  >
+                    {order ?? ""}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[12px] text-ink-3">
+            해제하려면 순서대로: {summaryFor(barriers)}
+          </p>
+        </div>
+
         <button
           onClick={start}
-          disabled={blockedApps.length === 0}
+          disabled={!canStart}
           className="btn-primary py-4 text-[16px] disabled:opacity-40"
         >
           🔗 목줄 채우기
         </button>
-      </div>
-
-      {/* 이번 주 */}
-      <div className="px-1">
-        <div className="text-[13px] text-ink-3">── 이번 주 ──</div>
-        <p className="mt-1 text-[14px] text-ink-2">
-          산책 {Math.floor(walkMinutes / 60)}시간 {walkMinutes % 60}분 · 줄 끊기{" "}
-          {breaks}회
-        </p>
+        {!canStart && (
+          <p className="-mt-2 text-center text-[12px] text-ink-3">
+            앱과 벌칙을 최소 1개씩 선택하세요
+          </p>
+        )}
       </div>
     </div>
   );
@@ -158,12 +194,10 @@ function Setup() {
 /* ───────────────────────── 차단 중 ───────────────────────── */
 function Blocking() {
   const router = useRouter();
-  const { blockedApps, endBlock } = useLeash();
-  const profile = useLeash((s) => s.profile());
+  const { blockedApps, endBlock, groupName } = useLeash();
   const { elapsedSec, totalSec, ended } = useBlockTimer();
 
   useEffect(() => {
-    // 시간 만료 → 완주 처리 후 설정 화면으로
     if (ended) endBlock("completed");
   }, [ended, endBlock]);
 
@@ -173,7 +207,7 @@ function Blocking() {
 
       <button onClick={() => router.push("/demo/walk")} className="text-left">
         <TimerCard
-          groupName={profile.name}
+          groupName={groupName}
           elapsedSec={elapsedSec}
           totalSec={totalSec}
         />
@@ -182,7 +216,7 @@ function Blocking() {
 
       <div className="mt-1">
         <div className="mb-2 text-[14px] text-ink-3">묶여있는 앱</div>
-        <AppListAccordion groupName={profile.name} apps={blockedApps} />
+        <AppListAccordion groupName={groupName} apps={blockedApps} />
       </div>
 
       <button

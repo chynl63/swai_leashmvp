@@ -6,12 +6,14 @@ import { motion } from "framer-motion";
 import { useLeash } from "@/lib/store";
 import { useBlockTimer, useMounted } from "@/lib/hooks";
 import { startSequence } from "@/lib/sequence";
+import { summaryFor } from "@/lib/profiles";
 import Character from "@/components/Character";
 
 export default function Interrupt() {
   const router = useRouter();
   const mounted = useMounted();
-  const profile = useLeash((s) => s.profile());
+  const groupName = useLeash((s) => s.groupName);
+  const barriers = useLeash((s) => s.barriers);
   const isActive = useLeash((s) => s.isActive);
   const durationMinutes = useLeash((s) => s.durationMinutes);
   const { elapsedSec, totalSec } = useBlockTimer();
@@ -28,7 +30,7 @@ export default function Interrupt() {
   return (
     <div className="flex flex-1 flex-col items-center px-6 pt-6">
       <div className="rounded-full bg-muted px-5 py-1.5 text-[16px] font-semibold text-ink">
-        {profile.name}
+        {groupName}
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
@@ -46,7 +48,7 @@ export default function Interrupt() {
 
       {/* 벌칙은 설정 시점에 확정됨 — 표시만 */}
       <p className="mb-3 text-[12px] text-ink-3">
-        줄 끊기 벌칙 · {profile.summary}
+        줄 끊기 벌칙 · {summaryFor(barriers)}
       </p>
 
       <div className="flex w-full flex-col gap-2.5 pb-6">
@@ -59,7 +61,7 @@ export default function Interrupt() {
           </button>
         )}
         <button
-          onClick={() => startSequence(router, profile.sequence)}
+          onClick={() => startSequence(router, barriers)}
           className="btn-soft py-3.5 text-[15px]"
         >
           벌칙을 수행하고 산책을 강제종료하기

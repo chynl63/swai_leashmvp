@@ -1,38 +1,46 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { PROFILES, type Profile, profileByKey } from "./profiles";
+import {
+  PROFILES,
+  type BarrierType,
+  profileByKey,
+  sortBarriers,
+} from "./profiles";
 import { logEvent } from "./log";
 
 export type HistoryEntry = {
   time: string; // "14:23"
   app: string;
-  result: string; // "참음 ✅" | "벌금 ₩2,250" | "벤치 🍿" | "줄 끊음"
+  result: string;
 };
 
 type LeashState = {
   // 설정
   nickname: string;
-  demoFast: boolean; // ⚡ 데모 가속
-  profileKey: string;
+  demoFast: boolean;
+  groupName: string; // 차단 그룹 이름 (프리셋명 or 커스텀)
+  barriers: BarrierType[]; // 해제 벌칙 시퀀스 (설정 시점 확정)
   blockedApps: string[];
   durationMinutes: number;
 
   // 세션
   isActive: boolean;
-  startedAt: number | null; // ms (실제 시각)
+  startedAt: number | null;
 
-  // 통계
-  walkMinutes: number; // 누적 산책(분, 데모 화면 기준)
+  // 통계 / 보상
+  walkMinutes: number;
   resists: number;
-  breaks: number; // 줄 끊은 횟수
-  finesTotal: number; // 이번 달 누적 벌금
-  fineCountToday: number; // 오늘 벌금 시도 횟수 (에스컬레이션)
+  breaks: number;
+  finesTotal: number;
+  fineCountToday: number;
   history: HistoryEntry[];
 
   // actions
   setNickname: (v: string) => void;
   toggleDemoFast: () => void;
-  setProfile: (key: string) => void;
+  applyPreset: (key: string) => void;
+  toggleBarrier: (b: BarrierType) => void;
+  setGroupName: (v: string) => void;
   toggleApp: (name: string) => void;
   setDuration: (min: number) => void;
   startBlock: () => void;
@@ -41,9 +49,6 @@ type LeashState = {
   recordBench: () => void;
   recordFine: (amount: number) => void;
   reset: () => void;
-
-  // derived
-  profile: () => Profile;
 };
 
 function nowTimeLabel(): string {
@@ -57,7 +62,8 @@ function nowTimeLabel(): string {
 const DEFAULTS = {
   nickname: "주인님",
   demoFast: true,
-  profileKey: PROFILES[0].key,
+  groupName: PROFILES[0].name,
+  barriers: [...PROFILES[0].sequence] as BarrierType[],
   blockedApps: ["인스타그램", "유튜브", "틱톡"],
   durationMinutes: 120,
   isActive: false,
@@ -77,7 +83,22 @@ export const useLeash = create<LeashState>()(
 
       setNickname: (v) => set({ nickname: v }),
       toggleDemoFast: () => set((s) => ({ demoFast: !s.demoFast })),
-      setProfile: (key) => set({ profileKey: key }),
+
+      applyPreset: (key) => {
+        const p = profileByKey(key);
+        set({ groupName: p.name, barriers: sortBarriers([...p.sequence]) });
+      },
+
+      toggleBarrier: (b) =>
+        set((s) => {
+          const has = s.barriers.includes(b);
+          const next = has
+            ? s.barriers.filter((x) => x !== b)
+            : [...s.barriers, b];
+          return { barriers: sortBarriers(next), groupName: "커스텀 차단" };
+        }),
+
+      setGroupName: (v) => set({ groupName: v }),
       toggleApp: (name) =>
         set((s) => ({
           blockedApps: s.blockedApps.includes(name)
@@ -90,17 +111,13 @@ export const useLeash = create<LeashState>()(
         const s = get();
         logEvent(
           "session_start",
-          `${s.profile().name} · ${s.durationMinutes}분 · ${s.blockedApps.join("/")}`
+          `${s.groupName} · ${s.durationMinutes}분 · 벌칙[${s.barriers.join("+")}] · 앱[${s.blockedApps.join("/")}]`
         );
         set({ isActive: true, startedAt: Date.now() });
       },
 
       endBlock: (reason) =>
         set((s) => {
-          logEvent(
-            reason === "completed" ? "session_completed" : "leash_broken",
-            s.profile().name
-          );
           const added =
             s.startedAt != null
               ? Math.round(
@@ -108,13 +125,13 @@ export const useLeash = create<LeashState>()(
                     (s.demoFast ? 60 : 1)
                 )
               : 0;
+          logEvent(
+            reason === "completed" ? "session_completed" : "leash_broken",
+            s.groupName
+          );
           const entry: HistoryEntry =
             reason === "completed"
-              ? {
-                  time: nowTimeLabel(),
-                  app: s.profile().name,
-                  result: "산책 완주 🏠",
-                }
+              ? { time: nowTimeLabel(), app: s.groupName, result: "산책 완주 🏠" }
               : {
                   time: nowTimeLabel(),
                   app: s.blockedApps[0] ?? "앱",
@@ -131,17 +148,20 @@ export const useLeash = create<LeashState>()(
 
       recordResist: () =>
         set((s) => {
-          logEvent("resist", s.profile().name);
+          logEvent("resist", s.groupName);
           return {
-          resists: s.resists + 1,
-          history: [
-            {
-              time: nowTimeLabel(),
-              app: s.blockedApps[Math.floor(Math.random() * Math.max(1, s.blockedApps.length))] ?? "앱",
-              result: "참음 ✅",
-            },
-            ...s.history,
-          ].slice(0, 12),
+            resists: s.resists + 1,
+            history: [
+              {
+                time: nowTimeLabel(),
+                app:
+                  s.blockedApps[
+                    Math.floor(Math.random() * Math.max(1, s.blockedApps.length))
+                  ] ?? "앱",
+                result: "참음 ✅",
+              },
+              ...s.history,
+            ].slice(0, 12),
           };
         }),
 
@@ -170,17 +190,7 @@ export const useLeash = create<LeashState>()(
         }),
 
       reset: () => set({ ...DEFAULTS }),
-
-      profile: () => profileByKey(get().profileKey),
     }),
-    {
-      name: "leash-demo",
-      // profile()는 함수이므로 직렬화 제외
-      partialize: (s) => {
-        const { profile, ...rest } = s as LeashState & Record<string, unknown>;
-        void profile;
-        return rest as LeashState;
-      },
-    }
+    { name: "leash-demo" }
   )
 );

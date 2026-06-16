@@ -8,6 +8,7 @@ import { useBlockTimer, useMounted } from "@/lib/hooks";
 import { formatHMS } from "@/lib/timer";
 import Character from "@/components/Character";
 import Footprints from "@/components/Footprints";
+import TemptationToast from "@/components/TemptationToast";
 
 /** 응시 감지 임계값 (실제 초) */
 const GAZE = { look: 30, hint: 90, stare: 180 };
@@ -15,7 +16,8 @@ const GAZE = { look: 30, hint: 90, stare: 180 };
 export default function Walk() {
   const router = useRouter();
   const mounted = useMounted();
-  const profile = useLeash((s) => s.profile());
+  const groupName = useLeash((s) => s.groupName);
+  const blockedApps = useLeash((s) => s.blockedApps);
   const isActive = useLeash((s) => s.isActive);
   const endBlock = useLeash((s) => s.endBlock);
   const { elapsedSec, remaining, ended } = useBlockTimer();
@@ -64,8 +66,12 @@ export default function Walk() {
 
   return (
     <div className="flex flex-1 flex-col items-center px-6 pt-6">
+      <TemptationToast
+        apps={blockedApps}
+        onOpen={() => router.push("/demo/interrupt")}
+      />
       <div className="rounded-full bg-muted px-5 py-1.5 text-[16px] font-semibold text-ink">
-        {profile.name}
+        {groupName}
       </div>
 
       <div className="tnum mt-7 text-[56px] font-bold leading-none text-ink">
