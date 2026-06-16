@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Character from "@/components/Character";
 import Footprints from "@/components/Footprints";
 import PhoneDevice from "@/components/PhoneDevice";
+import AdviceForm from "@/components/AdviceForm";
 
 const STEPS = [
   { n: "01", t: "목줄을 채운다", d: "차단할 앱과 시간을 정하고 산책을 시작합니다." },
@@ -193,6 +194,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ── Feedback ── */}
+      <AdviceForm />
 
       {/* ── Footer ── */}
       <footer className="bg-[#161616] px-5 py-14 text-white/70">
