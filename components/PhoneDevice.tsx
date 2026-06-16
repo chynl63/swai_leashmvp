@@ -1,0 +1,27 @@
+"use client";
+
+/**
+ * 물리적 iPhone 베젤 + 내부에 실행 중인 데모 앱(iframe).
+ * 랜딩 페이지 중앙에 박혀 실제로 동작하는 MVP를 보여준다.
+ */
+export default function PhoneDevice({ src = "/demo" }: { src?: string }) {
+  return (
+    <div
+      className="relative mx-auto shrink-0 overflow-hidden rounded-[46px] border-[11px] border-black bg-black shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
+      style={{
+        width: "min(86vw, 375px)",
+        height: "min(78dvh, 780px)",
+      }}
+    >
+      {/* 다이나믹 아일랜드 */}
+      <div className="pointer-events-none absolute left-1/2 top-[10px] z-30 h-[26px] w-[96px] -translate-x-1/2 rounded-full bg-black" />
+      <iframe
+        src={src}
+        title="Leash 데모"
+        loading="lazy"
+        allow="clipboard-write; clipboard-read"
+        className="block h-full w-full border-0 bg-bg"
+      />
+    </div>
+  );
+}

@@ -18,8 +18,9 @@ npm run dev
 ```
 
 - **별도 설정(환경변수·DB·API 키)이 전혀 필요 없습니다.** 클론 → 설치 → 실행이면 끝입니다.
-- 모든 기능(감시자 승인 포함)이 키 없이도 완전히 동작합니다. 자세한 내용은 아래
-  [Supabase 키가 꼭 필요한가요?](#supabase-키가-꼭-필요한가요) 참고.
+- 모든 기능(감시자 승인 포함)이 백엔드 URL 없이도 동작합니다. 백엔드(Google Sheets)
+  연결은 선택이며, 자세한 내용은 아래
+  [백엔드 (Google Sheets)](#백엔드-google-sheets--키-없이도-동작합니다) 참고.
 
 ---
 
@@ -92,36 +93,35 @@ npm run start   # http://localhost:3000
 
 ---
 
-## Supabase 키가 꼭 필요한가요?
+## 백엔드 (Google Sheets) — 키 없이도 동작합니다
 
-**아니요 — 데모 실행과 모든 기능 체험에는 필요 없습니다.**
+이 데모의 백엔드는 **Google Apps Script + Google Sheets**입니다(과제 DB 요건).
+프런트엔드는 JSONP로 Apps Script 웹앱을 호출해 데이터를 읽고 씁니다.
 
-감시자 승인은 두 가지 방식으로 동작하도록 설계했습니다.
+**실행 자체에는 설정이 필요 없습니다.** 백엔드 URL이 없으면 감시자 승인은 같은
+브라우저 탭 간 폴백으로 동작합니다(아래 표 참고).
 
 | 환경 | 동작 방식 | 비고 |
 |------|-----------|------|
-| **키 없음 (기본)** | BroadcastChannel 폴백 | **같은 브라우저의 다른 탭**에서 승인하면 실시간 반영. 클론 직후 바로 됨 |
-| **키 있음** | Supabase Realtime | **다른 기기/폰**에서 승인해도 실시간 반영 (진짜 서버 기반) |
+| **URL 없음 (기본)** | BroadcastChannel 폴백 | **같은 브라우저의 다른 탭**에서 승인하면 즉시 반영. 클론 직후 바로 됨 |
+| **URL 있음** | Google Sheets 폴링 | **다른 기기/폰**에서 승인해도 반영 + 모든 활동이 시트에 기록됨 |
 
-> 명세서상 "Supabase Realtime 기술 시연"이 가산 요소라, **실제 Realtime을 시연하고
-> 싶을 때만** 아래처럼 키를 넣으면 됩니다. 넣지 않아도 데모는 완전합니다.
+### (선택) Google Sheets 백엔드 연결
 
-### (선택) Supabase 실시간 활성화
+자세한 단계는 [`docs/google-sheets-setup.md`](docs/google-sheets-setup.md) 참고. 요약:
 
-1. 프로젝트 루트에 `.env.local` 파일 생성:
+1. 스프레드시트에 `approval_requests`, `events` 탭을 만들고 헤더 입력
+   (헤더는 가이드 문서 참고, `id` 열 필수)
+2. Apps Script 코드를 **웹 앱으로 배포**(액세스: 모든 사용자) → `/exec` URL 복사
+3. `.env.local` (또는 Netlify 환경변수)에 등록 후 서버 재시작:
    ```
-   NEXT_PUBLIC_SUPABASE_URL=https://edcoazlosntzjmjthqpz.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=여기에_anon_key
-   SUPABASE_SERVICE_ROLE_KEY=여기에_service_role_key
+   NEXT_PUBLIC_SHEET_API_URL=https://script.google.com/macros/s/XXXX/exec
    ```
-   (anon key는 Supabase 대시보드 → Project Settings → API 에서 확인)
-2. Supabase SQL 에디터에서 [`supabase/schema.sql`](supabase/schema.sql) 실행
-3. 서버 재시작 (`npm run dev`)
 
-키가 채워져 있으면 감시자 화면에 "Supabase Realtime으로 실시간 연결됨"이,
-비어 있으면 "데모 모드 — 같은 브라우저 탭 간 실시간 연결"이 표시됩니다.
+URL이 연결되면 감시자 화면에 "Google Sheets 백엔드 연결됨 — 다른 기기에서도 승인
+가능"이 표시되고, 산책 시작·참기·벌금·줄 끊기 등 활동이 `events` 시트에 쌓입니다.
 
-> `.env.local`은 보안상 git에 포함되지 않습니다(`.gitignore`). 템플릿은
+> `.env.local`은 git에 포함되지 않습니다(`.gitignore`). 템플릿은
 > [`.env.example`](.env.example)에 있습니다.
 
 ---
@@ -134,7 +134,7 @@ npm run start   # http://localhost:3000
 | 언어 | TypeScript |
 | 스타일 | Tailwind CSS v4 |
 | 상태 관리 | Zustand (localStorage persist) |
-| 백엔드(선택) | Supabase (Realtime / PostgreSQL) |
+| 백엔드 | Google Apps Script + Google Sheets (JSONP) |
 | 애니메이션 | Framer Motion |
 | 폰트 | Pretendard |
 | 배포 | Netlify |
@@ -159,15 +159,15 @@ app/
       typing/page.tsx        타이핑 과제
       wait/page.tsx          대기 (화면 이탈 시 리셋)
       fine/page.tsx          벌금 에스컬레이션
-      guardian/page.tsx      감시자 승인 (Realtime/폴백)
+      guardian/page.tsx      감시자 승인 (Sheets 폴링/폴백)
     stats/page.tsx           통계 탭
   approve/[token]/page.tsx   감시자 승인 웹페이지 (프레임 밖, 별도 URL)
-components/                  PhoneFrame, StatusBar, TabBar, Character(SVG),
+components/                  PhoneDevice, StatusBar, TabBar, Character(SVG),
                              TimerCard, TransitionScreen, GlassCard, ...
 lib/                         store(Zustand), timer, escalation, math-generator,
-                             approval(Realtime+폴백), supabase, profiles, sequence
+                             approval(Sheets+폴백), sheetdb, log, profiles, sequence
 public/characters/           캐릭터 line-art SVG
-supabase/schema.sql          (선택) Supabase 테이블 스키마
+docs/google-sheets-setup.md  Google Sheets 백엔드 연동 가이드
 ```
 
 ---
@@ -179,8 +179,8 @@ supabase/schema.sql          (선택) Supabase 테이블 스키마
 - 루트의 [`netlify.toml`](netlify.toml)에 `@netlify/plugin-nextjs`가 설정되어 있어
   App Router의 SSR/동적 라우트(`/approve/[token]`)까지 동작합니다.
 - Build command `npm run build`, Publish directory `.next` (toml에 기재됨).
-- Supabase Realtime을 켜려면 Netlify → Site settings → Environment variables에
-  위 키들을 등록하세요. (미등록 시 폴백 모드로 동작)
+- Google Sheets 백엔드를 켜려면 Netlify → Site settings → Environment variables에
+  `NEXT_PUBLIC_SHEET_API_URL`을 등록하세요. (미등록 시 폴백 모드로 동작)
 
 ---
 
@@ -193,8 +193,8 @@ supabase/schema.sql          (선택) Supabase 테이블 스키마
 | 폰트가 기본 폰트로 보임 | 인터넷 연결 확인 (Pretendard는 CDN 로드, 오프라인이면 시스템 폰트로 대체) |
 | 화면이 이전 상태로 시작됨 | 진행 상태가 localStorage에 저장됩니다. 초기화하려면 브라우저
   개발자도구 → Application → Local Storage → `leash-demo` 삭제 후 새로고침 |
-| 감시자 승인이 다른 기기에서 안 됨 | 키 없는 기본 모드는 **같은 브라우저 탭** 간만 동작합니다.
-  다른 기기 시연은 위 Supabase 키 설정 필요 |
+| 감시자 승인이 다른 기기에서 안 됨 | URL 없는 기본 모드는 **같은 브라우저 탭** 간만 동작합니다.
+  다른 기기 시연은 위 Google Sheets URL 설정 필요 |
 
 ---
 

@@ -9,7 +9,7 @@ import {
   watchApproval,
   type ApprovalStatus,
 } from "@/lib/approval";
-import { hasSupabase } from "@/lib/supabase";
+import { hasSheetDB } from "@/lib/sheetdb";
 
 const GUARDIAN = "엄마";
 
@@ -109,8 +109,8 @@ function GuardianInner() {
           </div>
 
           <p className="mt-6 text-[11px] text-ink-3">
-            {hasSupabase
-              ? "Supabase Realtime으로 실시간 연결됨"
+            {hasSheetDB
+              ? "Google Sheets 백엔드 연결됨 — 다른 기기에서도 승인 가능"
               : "데모 모드 — 같은 브라우저 탭 간 실시간 연결"}
           </p>
         </>

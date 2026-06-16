@@ -1,10 +1,12 @@
 /**
- * 감시자 승인 (spec §4.6, design memory: 소셜 프레셔 핵심 차별점)
+ * 감시자 승인 (spec §4.6 · 소셜 프레셔 핵심 차별점)
  *
- * - Supabase가 설정돼 있으면 approval_requests 테이블 + Realtime 사용
- * - 없으면 localStorage + BroadcastChannel 폴백 (같은 브라우저 탭 간 동작 → 데모 OK)
+ * 백엔드: Google Sheets (`approval_requests` 시트, 헤더: id | guardian_name | status | created_at)
+ *   - 설정돼 있으면 Sheets에 기록 + 폴링으로 상태 변화 감지 → 다른 기기에서도 동작
+ *   - 같은 브라우저 탭 간에는 BroadcastChannel로 즉시 반영
+ *   - Sheets URL이 없으면 BroadcastChannel/localStorage 폴백 (오프라인 데모)
  */
-import { supabase } from "./supabase";
+import { hasSheetDB, sheetInsert, sheetRead } from "./sheetdb";
 
 export type ApprovalStatus = "pending" | "approved" | "denied";
 export type Approval = {
@@ -14,18 +16,27 @@ export type Approval = {
   createdAt: number;
 };
 
+const TABLE = "approval_requests";
 const LS_PREFIX = "leash-approval:";
 const channelName = "leash-approval";
 
-function lsKey(token: string) {
-  return LS_PREFIX + token;
+const lsKey = (token: string) => LS_PREFIX + token;
+
+export function makeToken(): string {
+  return (
+    Math.random().toString(36).slice(2, 8) +
+    Math.random().toString(36).slice(2, 8)
+  );
 }
 
-/** 랜덤 토큰 */
-export function makeToken(): string {
-  const a = Math.random().toString(36).slice(2, 8);
-  const b = Math.random().toString(36).slice(2, 8);
-  return `${a}${b}`;
+function broadcast(token: string, status: ApprovalStatus) {
+  try {
+    const bc = new BroadcastChannel(channelName);
+    bc.postMessage({ token, status });
+    bc.close();
+  } catch {
+    /* no-op */
+  }
 }
 
 export async function createApproval(
@@ -38,57 +49,69 @@ export async function createApproval(
     status: "pending",
     createdAt: Date.now(),
   };
-  if (supabase) {
-    await supabase.from("approval_requests").insert({
-      token,
+  // 같은 브라우저 폴백용
+  try {
+    localStorage.setItem(lsKey(token), JSON.stringify(record));
+  } catch {
+    /* no-op */
+  }
+  if (hasSheetDB) {
+    await sheetInsert(TABLE, {
+      id: token,
       guardian_name: guardianName,
       status: "pending",
-    });
-    return;
+      created_at: new Date().toISOString(),
+    }).catch(() => {});
   }
-  localStorage.setItem(lsKey(token), JSON.stringify(record));
 }
 
 export async function getApproval(token: string): Promise<Approval | null> {
-  if (supabase) {
-    const { data } = await supabase
-      .from("approval_requests")
-      .select("token, guardian_name, status, created_at")
-      .eq("token", token)
-      .single();
-    if (!data) return null;
-    return {
-      token: data.token,
-      guardianName: data.guardian_name,
-      status: data.status as ApprovalStatus,
-      createdAt: new Date(data.created_at).getTime(),
-    };
+  if (hasSheetDB) {
+    try {
+      const row = (await sheetRead(TABLE, token)) as Record<
+        string,
+        unknown
+      > | null;
+      if (row && row.id != null) {
+        return {
+          token,
+          guardianName: String(row.guardian_name ?? "감시자"),
+          status: (String(row.status || "pending") as ApprovalStatus),
+          createdAt: Date.now(),
+        };
+      }
+    } catch {
+      /* fall through to localStorage */
+    }
   }
-  const raw = localStorage.getItem(lsKey(token));
-  return raw ? (JSON.parse(raw) as Approval) : null;
+  try {
+    const raw = localStorage.getItem(lsKey(token));
+    return raw ? (JSON.parse(raw) as Approval) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function setApprovalStatus(
   token: string,
   status: ApprovalStatus
 ): Promise<void> {
-  if (supabase) {
-    await supabase
-      .from("approval_requests")
-      .update({ status })
-      .eq("token", token);
-    return;
-  }
-  const raw = localStorage.getItem(lsKey(token));
-  if (!raw) return;
-  const rec = JSON.parse(raw) as Approval;
-  rec.status = status;
-  localStorage.setItem(lsKey(token), JSON.stringify(rec));
-  // 다른 탭에 알림
+  // 같은 브라우저 폴백 갱신 + 즉시 알림
   try {
-    new BroadcastChannel(channelName).postMessage({ token, status });
+    const raw = localStorage.getItem(lsKey(token));
+    if (raw) {
+      const rec = JSON.parse(raw) as Approval;
+      rec.status = status;
+      localStorage.setItem(lsKey(token), JSON.stringify(rec));
+    }
   } catch {
     /* no-op */
+  }
+  broadcast(token, status);
+
+  if (hasSheetDB) {
+    // insert는 같은 id면 업서트(상태 갱신)
+    await sheetInsert(TABLE, { id: token, status }).catch(() => {});
   }
 }
 
@@ -97,30 +120,9 @@ export function watchApproval(
   token: string,
   cb: (status: ApprovalStatus) => void
 ): () => void {
-  if (supabase) {
-    const sb = supabase;
-    const ch = sb
-      .channel(`approval-${token}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "approval_requests",
-          filter: `token=eq.${token}`,
-        },
-        (payload) => {
-          const status = (payload.new as { status?: ApprovalStatus }).status;
-          if (status) cb(status);
-        }
-      )
-      .subscribe();
-    return () => {
-      sb.removeChannel(ch);
-    };
-  }
+  let stopped = false;
 
-  // 폴백: BroadcastChannel + storage 이벤트
+  // 1) 같은 브라우저 탭 즉시 반영
   let bc: BroadcastChannel | null = null;
   try {
     bc = new BroadcastChannel(channelName);
@@ -133,16 +135,36 @@ export function watchApproval(
   const onStorage = (e: StorageEvent) => {
     if (e.key === lsKey(token) && e.newValue) {
       try {
-        const rec = JSON.parse(e.newValue) as Approval;
-        cb(rec.status);
+        cb((JSON.parse(e.newValue) as Approval).status);
       } catch {
         /* no-op */
       }
     }
   };
   window.addEventListener("storage", onStorage);
+
+  // 2) 다른 기기 반영 — Sheets 폴링
+  let poll: ReturnType<typeof setInterval> | null = null;
+  if (hasSheetDB) {
+    poll = setInterval(async () => {
+      if (stopped) return;
+      try {
+        const row = (await sheetRead(TABLE, token)) as Record<
+          string,
+          unknown
+        > | null;
+        const status = row?.status as ApprovalStatus | undefined;
+        if (status && status !== "pending") cb(status);
+      } catch {
+        /* no-op */
+      }
+    }, 2500);
+  }
+
   return () => {
+    stopped = true;
     bc?.close();
     window.removeEventListener("storage", onStorage);
+    if (poll) clearInterval(poll);
   };
 }

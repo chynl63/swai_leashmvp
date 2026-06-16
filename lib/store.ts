@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { PROFILES, type Profile, profileByKey } from "./profiles";
+import { logEvent } from "./log";
 
 export type HistoryEntry = {
   time: string; // "14:23"
@@ -85,10 +86,21 @@ export const useLeash = create<LeashState>()(
         })),
       setDuration: (min) => set({ durationMinutes: min }),
 
-      startBlock: () => set({ isActive: true, startedAt: Date.now() }),
+      startBlock: () => {
+        const s = get();
+        logEvent(
+          "session_start",
+          `${s.profile().name} · ${s.durationMinutes}분 · ${s.blockedApps.join("/")}`
+        );
+        set({ isActive: true, startedAt: Date.now() });
+      },
 
       endBlock: (reason) =>
         set((s) => {
+          logEvent(
+            reason === "completed" ? "session_completed" : "leash_broken",
+            s.profile().name
+          );
           const added =
             s.startedAt != null
               ? Math.round(
@@ -118,7 +130,9 @@ export const useLeash = create<LeashState>()(
         }),
 
       recordResist: () =>
-        set((s) => ({
+        set((s) => {
+          logEvent("resist", s.profile().name);
+          return {
           resists: s.resists + 1,
           history: [
             {
@@ -128,25 +142,32 @@ export const useLeash = create<LeashState>()(
             },
             ...s.history,
           ].slice(0, 12),
-        })),
+          };
+        }),
 
       recordBench: () =>
-        set((s) => ({
-          history: [
-            {
-              time: nowTimeLabel(),
-              app: s.blockedApps[0] ?? "앱",
-              result: "벤치 🍿",
-            },
-            ...s.history,
-          ].slice(0, 12),
-        })),
+        set((s) => {
+          logEvent("bench", s.blockedApps[0] ?? "앱");
+          return {
+            history: [
+              {
+                time: nowTimeLabel(),
+                app: s.blockedApps[0] ?? "앱",
+                result: "벤치 🍿",
+              },
+              ...s.history,
+            ].slice(0, 12),
+          };
+        }),
 
       recordFine: (amount) =>
-        set((s) => ({
-          finesTotal: s.finesTotal + amount,
-          fineCountToday: s.fineCountToday + 1,
-        })),
+        set((s) => {
+          logEvent("fine", `₩${amount.toLocaleString("ko-KR")}`);
+          return {
+            finesTotal: s.finesTotal + amount,
+            fineCountToday: s.fineCountToday + 1,
+          };
+        }),
 
       reset: () => set({ ...DEFAULTS }),
 
