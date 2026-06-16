@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* Pretendard (CDN) */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+
+/* ── Leash Design Tokens (spec §2) ──────────────────────────── */
+@theme {
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", sans-serif;
+
+  /* Background */
+  --color-bg: #f7f7f8;
+  --color-card: #ffffff;
+  --color-muted: #ececee;
+
+  /* Text / ink */
+  --color-ink: #1a1a1a;
+  --color-ink-2: #6b6b6b;
+  --color-ink-3: #a0a0a0;
+
+  /* Accent — Golden Ochre (앱 전체 유일한 컬러 포인트) */
+  --color-ochre: #e8a835;
+  --color-ochre-light: #fdf3e0;
+  --color-ochre-dark: #b8841a;
+
+  /* Dark (투톤 타이머 카드 남은 길) */
+  --color-walk-dark: #262626;
+
+  /* Semantic */
+  --color-danger: #e24b4a;
+  --color-success: #4caf50;
+
+  /* Border */
+  --color-line: #e5e5e8;
+  --color-line-strong: #d5d5d8;
+
+  --radius-glass: 16px;
+  --radius-card: 12px;
+  --radius-btn: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* tabular numbers for timers so digits don't jitter */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Reusable component classes ─────────────────────────────── */
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 0.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-glass);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  .plain-card {
+    background: #fff;
+    border: 0.5px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+
+  .btn-primary {
+    background: var(--color-ochre);
+    color: #fff;
+    border-radius: var(--radius-btn);
+    font-weight: 600;
+    transition: transform 0.15s ease, background 0.2s ease, opacity 0.2s ease;
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+    background: var(--color-ochre-dark);
+  }
+
+  .btn-soft {
+    background: var(--color-muted);
+    color: var(--color-ink);
+    border-radius: var(--radius-btn);
+    font-weight: 500;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  .btn-soft:active {
+    transform: scale(0.98);
+    background: #e1e1e4;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink-2);
+  }
+}
+
+/* shake animation for wrong math answers */
+@keyframes leash-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}
+.shake {
+  animation: leash-shake 0.4s ease;
+}
+
+/* hide scrollbars inside the phone frame */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
