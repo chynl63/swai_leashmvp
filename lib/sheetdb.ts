@@ -8,7 +8,13 @@
  *   NEXT_PUBLIC_SHEET_API_URL=https://script.google.com/macros/s/XXXX/exec
  */
 
-const API = process.env.NEXT_PUBLIC_SHEET_API_URL;
+// 배포된 Apps Script 웹앱 URL (공개 NEXT_PUBLIC 값 — 비밀 아님).
+// 교수님이 .env 설정 없이 클론만 해도 백엔드가 동작하도록 기본값으로 내장.
+// 환경변수로 덮어쓸 수 있음.
+const FALLBACK_API =
+  "https://script.google.com/macros/s/AKfycbxiiguJwosZ2mr5A2Ndk-keSCRYuZmVR6IOFncBQn5t1lfKj-rujhdKHYwe3zen4wZQfw/exec";
+
+const API = process.env.NEXT_PUBLIC_SHEET_API_URL || FALLBACK_API;
 export const hasSheetDB = !!API;
 
 type SheetResponse<T = unknown> = {

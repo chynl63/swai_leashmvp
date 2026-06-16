@@ -98,31 +98,18 @@ npm run start   # http://localhost:3000
 이 데모의 백엔드는 **Google Apps Script + Google Sheets**입니다(과제 DB 요건).
 프런트엔드는 JSONP로 Apps Script 웹앱을 호출해 데이터를 읽고 씁니다.
 
-**실행 자체에는 설정이 필요 없습니다.** 백엔드 URL이 없으면 감시자 승인은 같은
-브라우저 탭 간 폴백으로 동작합니다(아래 표 참고).
+배포된 웹앱 URL이 [`lib/sheetdb.ts`](lib/sheetdb.ts)에 **기본값으로 내장**되어 있어,
+**클론 후 별도 설정 없이도 Google Sheets 백엔드가 연결**됩니다(공개 URL, 비밀값 아님).
 
-| 환경 | 동작 방식 | 비고 |
-|------|-----------|------|
-| **URL 없음 (기본)** | BroadcastChannel 폴백 | **같은 브라우저의 다른 탭**에서 승인하면 즉시 반영. 클론 직후 바로 됨 |
-| **URL 있음** | Google Sheets 폴링 | **다른 기기/폰**에서 승인해도 반영 + 모든 활동이 시트에 기록됨 |
+동작:
+- **감시자 승인**: 요청을 `approval_requests` 시트에 기록 → 승인 페이지에서 상태 변경 →
+  앱이 폴링으로 감지(**다른 기기/폰에서도 승인 가능**). 같은 브라우저 탭 간에는 즉시 반영.
+- **활동 로그**: 산책 시작·완주·줄끊기·참기·벤치·벌금이 `events` 시트에 기록됩니다.
 
-### (선택) Google Sheets 백엔드 연결
-
-자세한 단계는 [`docs/google-sheets-setup.md`](docs/google-sheets-setup.md) 참고. 요약:
-
-1. 스프레드시트에 `approval_requests`, `events` 탭을 만들고 헤더 입력
-   (헤더는 가이드 문서 참고, `id` 열 필수)
-2. Apps Script 코드를 **웹 앱으로 배포**(액세스: 모든 사용자) → `/exec` URL 복사
-3. `.env.local` (또는 Netlify 환경변수)에 등록 후 서버 재시작:
-   ```
-   NEXT_PUBLIC_SHEET_API_URL=https://script.google.com/macros/s/XXXX/exec
-   ```
-
-URL이 연결되면 감시자 화면에 "Google Sheets 백엔드 연결됨 — 다른 기기에서도 승인
-가능"이 표시되고, 산책 시작·참기·벌금·줄 끊기 등 활동이 `events` 시트에 쌓입니다.
-
-> `.env.local`은 git에 포함되지 않습니다(`.gitignore`). 템플릿은
-> [`.env.example`](.env.example)에 있습니다.
+> 백엔드(스프레드시트 탭 구성, 다른 URL로 교체 등) 셋업은
+> [`docs/google-sheets-setup.md`](docs/google-sheets-setup.md) 참고.
+> 다른 배포본을 쓰려면 `.env.local`/Netlify 환경변수의
+> `NEXT_PUBLIC_SHEET_API_URL`로 덮어쓸 수 있습니다.
 
 ---
 
