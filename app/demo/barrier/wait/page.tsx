@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useLeash } from "@/lib/store";
 import { advance, parseSeq } from "@/lib/sequence";
 import { ACCEL, formatMS } from "@/lib/timer";
+import GiveUpBar from "@/components/GiveUpBar";
 
 const WAIT_SECONDS = 180; // 3:00
 
@@ -53,7 +54,9 @@ function WaitInner() {
   const pct = Math.min(100, (elapsed / WAIT_SECONDS) * 100);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-8">
+    <div className="flex flex-1 flex-col px-8">
+      <GiveUpBar barrier="wait" />
+      <div className="flex flex-1 flex-col items-center justify-center">
       <div className="tnum text-[64px] font-semibold text-ochre">
         {formatMS(left)}
       </div>
@@ -75,6 +78,7 @@ function WaitInner() {
           ? "화면을 떠나서 처음부터 리셋됐어요!"
           : "이 화면을 떠나면 리셋됩니다"}
       </p>
+      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { useLeash } from "@/lib/store";
 import { useBlockTimer, useMounted } from "@/lib/hooks";
 import { formatHMS } from "@/lib/timer";
 import Character from "@/components/Character";
-import Footprints from "@/components/Footprints";
+import WalkingCharacter from "@/components/WalkingCharacter";
 import TemptationToast from "@/components/TemptationToast";
 
 /** 응시 감지 임계값 (실제 초) */
@@ -81,8 +81,8 @@ export default function Walk() {
         {formatHMS(elapsedSec)}째 걷는 중
       </div>
 
-      {/* 캐릭터 + 발자국 */}
-      <div className="relative mt-12 flex flex-1 items-center justify-center">
+      {/* 캐릭터 */}
+      <div className="relative mt-10 flex flex-1 items-center justify-center">
         <AnimatePresence mode="wait">
           {gazing ? (
             <motion.div
@@ -93,11 +93,11 @@ export default function Walk() {
               className="flex flex-col items-center"
             >
               {bubble && (
-                <div className="mb-4 rounded-2xl bg-ink px-4 py-2 text-[14px] font-medium text-white">
+                <div className="mb-5 rounded-2xl bg-ink px-4 py-2 text-[14px] font-medium text-white">
                   {bubble}
                 </div>
               )}
-              <Character view="front" size={170} />
+              <Character view="front" size={210} />
             </motion.div>
           ) : (
             <motion.div
@@ -105,10 +105,8 @@ export default function Walk() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-end gap-3"
             >
-              <Footprints pairs={3} />
-              <Character view="side" walking size={150} />
+              <WalkingCharacter size={200} />
             </motion.div>
           )}
         </AnimatePresence>

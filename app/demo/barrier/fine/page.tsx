@@ -6,6 +6,7 @@ import { useLeash } from "@/lib/store";
 import { useMounted } from "@/lib/hooks";
 import { advance, parseSeq } from "@/lib/sequence";
 import { fineFor, multiplierLabel, won } from "@/lib/escalation";
+import GiveUpBar from "@/components/GiveUpBar";
 
 function FineInner() {
   const router = useRouter();
@@ -26,7 +27,9 @@ function FineInner() {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+    <div className="flex flex-1 flex-col px-8 text-center">
+      <GiveUpBar barrier="fine" />
+      <div className="flex flex-1 flex-col items-center justify-center">
       <p className="text-[15px] text-ink-2">예외 사용권</p>
       <div className="tnum mt-3 text-[44px] font-semibold text-ochre">
         {won(amount)}
@@ -49,6 +52,7 @@ function FineInner() {
       <p className="mt-6 text-[13px] text-ink-2">
         이번 달 누적: <span className="font-medium">{won(finesTotal)}</span>
       </p>
+      </div>
     </div>
   );
 }

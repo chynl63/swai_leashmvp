@@ -60,7 +60,7 @@ export default function Character({
       )}
 
       <motion.svg
-        viewBox="0 0 214 260"
+        viewBox="38 0 214 260"
         width={width}
         height={size}
         fill="none"

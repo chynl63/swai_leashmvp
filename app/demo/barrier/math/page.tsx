@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { generateProblems } from "@/lib/math-generator";
 import { advance, parseSeq } from "@/lib/sequence";
+import GiveUpBar from "@/components/GiveUpBar";
 
 const TOTAL = 5;
 
@@ -38,8 +39,9 @@ function MathInner() {
   };
 
   return (
-    <div className="flex flex-1 flex-col px-6 pt-8">
-      <div className="text-[14px] font-medium text-ink-3">
+    <div className="flex flex-1 flex-col px-6 pt-2">
+      <GiveUpBar barrier="math" />
+      <div className="mt-2 text-[14px] font-medium text-ink-3">
         수학 문제 {idx + 1}/{TOTAL}
       </div>
       {/* 진행 점 */}

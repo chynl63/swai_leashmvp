@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { advance, parseSeq } from "@/lib/sequence";
+import GiveUpBar from "@/components/GiveUpBar";
 
 const TARGET = "나는 지금 시간을 낭비하고 있으며 이 앱을 여는 것이 부끄럽습니다";
 
@@ -28,8 +29,9 @@ function TypingInner() {
   }, [matched, remaining, router]);
 
   return (
-    <div className="flex flex-1 flex-col px-6 pt-8">
-      <h2 className="text-[20px] font-medium text-ink">
+    <div className="flex flex-1 flex-col px-6 pt-2">
+      <GiveUpBar barrier="typing" />
+      <h2 className="mt-2 text-[20px] font-medium text-ink">
         아래 문장을 정확히 따라 쓰세요
       </h2>
 

@@ -109,7 +109,7 @@ export default function Landing() {
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           >
-            <Character view="front" effect="sparkle" size={150} />
+            <Character view="front" effect="sparkle" size={180} />
           </motion.div>
         </div>
       </section>

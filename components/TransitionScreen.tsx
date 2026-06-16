@@ -37,7 +37,7 @@ export default function TransitionScreen({
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 220, damping: 18 }}
       >
-        <Character view={view} effect={effect} size={170} />
+        <Character view={view} effect={effect} size={190} />
       </motion.div>
       <motion.p
         className="mt-8 whitespace-pre-line text-[17px] font-medium leading-relaxed text-ink-2"

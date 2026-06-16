@@ -133,6 +133,34 @@ button {
   animation: leash-shake 0.4s ease;
 }
 
+/* 산책 트레드밀: 발자국이 왼쪽으로 흐르며 걷는 느낌 */
+@keyframes leash-treadmill {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.treadmill {
+  width: max-content;
+  animation: leash-treadmill 1.1s linear infinite;
+}
+
+/* 걸을 때 위아래로 살짝 흔들 */
+@keyframes leash-bob {
+  0%,
+  100% {
+    transform: translateX(var(--char-shift, 0)) translateY(0);
+  }
+  50% {
+    transform: translateX(var(--char-shift, 0)) translateY(-5px);
+  }
+}
+.walk-bob {
+  animation: leash-bob 0.45s ease-in-out infinite;
+}
+
 /* hide scrollbars inside the phone frame */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

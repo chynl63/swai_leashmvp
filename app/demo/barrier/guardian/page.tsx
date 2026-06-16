@@ -10,6 +10,7 @@ import {
   type ApprovalStatus,
 } from "@/lib/approval";
 import { hasSheetDB } from "@/lib/sheetdb";
+import GiveUpBar from "@/components/GiveUpBar";
 
 const GUARDIAN = "엄마";
 
@@ -54,7 +55,9 @@ function GuardianInner() {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
+    <div className="flex flex-1 flex-col px-8 text-center">
+      <GiveUpBar barrier="guardian" />
+      <div className="flex flex-1 flex-col items-center justify-center">
       {status === "approved" ? (
         <>
           <div className="text-[44px]">✅</div>
@@ -115,6 +118,7 @@ function GuardianInner() {
           </p>
         </>
       )}
+      </div>
     </div>
   );
 }

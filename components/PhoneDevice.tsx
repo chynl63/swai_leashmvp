@@ -9,8 +9,9 @@ export default function PhoneDevice({ src = "/demo" }: { src?: string }) {
     <div
       className="relative mx-auto shrink-0 overflow-hidden rounded-[46px] border-[11px] border-black bg-black shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
       style={{
-        width: "min(86vw, 375px)",
-        height: "min(78dvh, 780px)",
+        // 실제 iPhone 비율(375:812) 고정 — 너비/높이 둘 다로 제한
+        width: "min(86vw, 375px, calc(86dvh * 375 / 812))",
+        aspectRatio: "375 / 812",
       }}
     >
       {/* 다이나믹 아일랜드 */}

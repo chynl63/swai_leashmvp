@@ -39,7 +39,7 @@ export default function Interrupt() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 200, damping: 18 }}
         >
-          <Character view="front" effect="rain" size={175} />
+          <Character view="front" effect="rain" size={195} />
         </motion.div>
         <p className="mt-7 text-[18px] font-medium text-ink-2">
           한창 재밌었는데...
