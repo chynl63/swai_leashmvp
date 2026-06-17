@@ -144,7 +144,7 @@ button {
 }
 .treadmill {
   width: max-content;
-  animation: leash-treadmill 1.1s linear infinite;
+  animation: leash-treadmill 2.4s linear infinite;
 }
 
 /* 걸을 때 위아래로 살짝 흔들 */
@@ -158,7 +158,7 @@ button {
   }
 }
 .walk-bob {
-  animation: leash-bob 0.45s ease-in-out infinite;
+  animation: leash-bob 0.62s ease-in-out infinite;
 }
 
 /* hide scrollbars inside the phone frame */

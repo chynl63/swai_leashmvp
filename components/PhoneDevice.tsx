@@ -7,15 +7,15 @@
 export default function PhoneDevice({ src = "/demo" }: { src?: string }) {
   return (
     <div
-      className="relative mx-auto shrink-0 overflow-hidden rounded-[46px] border-[11px] border-black bg-black shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
+      className="relative mx-auto shrink-0 overflow-hidden rounded-[48px] border-[12px] border-black bg-black shadow-[0_40px_120px_rgba(0,0,0,0.55)]"
       style={{
-        // 실제 iPhone 비율(375:812) 고정 — 너비/높이 둘 다로 제한
-        width: "min(86vw, 375px, calc(86dvh * 375 / 812))",
-        aspectRatio: "375 / 812",
+        // 실제 iPhone 비율(390:844) 고정 — 너비/높이 둘 다로 제한
+        width: "min(92vw, 410px, calc(86dvh * 390 / 844))",
+        aspectRatio: "390 / 844",
       }}
     >
       {/* 다이나믹 아일랜드 */}
-      <div className="pointer-events-none absolute left-1/2 top-[10px] z-30 h-[26px] w-[96px] -translate-x-1/2 rounded-full bg-black" />
+      <div className="pointer-events-none absolute left-1/2 top-[11px] z-30 h-[27px] w-[104px] -translate-x-1/2 rounded-full bg-black" />
       <iframe
         src={src}
         title="Leash 데모"

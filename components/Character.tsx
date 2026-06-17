@@ -52,7 +52,7 @@ export default function Character({
         <motion.img
           src="/characters/sparkle.svg"
           alt=""
-          className="pointer-events-none absolute right-[6%] top-[2%]"
+          className="pointer-events-none absolute right-[1%] top-[-7%]"
           style={{ width: size * 0.22 }}
           animate={{ scale: [0.85, 1.1, 0.85], rotate: [0, 8, 0] }}
           transition={{ duration: 1.4, repeat: Infinity }}

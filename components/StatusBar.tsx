@@ -20,10 +20,10 @@ export default function StatusBar({ dark = false }: { dark?: boolean }) {
 
   return (
     <div
-      className="relative z-20 flex h-[44px] shrink-0 items-center justify-between px-7 pt-2"
+      className="relative z-20 flex h-[50px] shrink-0 items-center justify-between px-7"
       style={{ color: fg }}
     >
-      <span className="text-[15px] font-semibold tnum">{time}</span>
+      <span className="ml-1 text-[16px] font-semibold tnum">{time}</span>
       <div className="flex items-center gap-1.5">
         {/* 셀룰러 */}
         <svg width="18" height="12" viewBox="0 0 18 12" fill="none">

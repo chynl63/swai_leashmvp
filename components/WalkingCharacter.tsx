@@ -5,21 +5,23 @@ import { useEffect, useState } from "react";
 /** 몸통을 가운데로 (목줄은 왼쪽으로 흘림). 몸통 중심이 width의 ~68% → 50%로 당김 */
 const SHIFT = "-17%";
 
+const FADE_MASK = "linear-gradient(to left, #000 14%, transparent 86%)";
+
 /**
- * 산책 중 캐릭터 — side-a(다리 벌림) ↔ side-b(다리 모음) 프레임을 반복해
- * 실제 걷는 느낌. 발밑 발자국은 트레드밀처럼 왼쪽으로 흐른다.
+ * 산책 중 캐릭터 — side-a(다리 벌림) ↔ side-b(다리 모음)를 반복해 걷는 느낌.
+ * 발자국은 발(화면 중앙)에서 생겨 왼쪽으로 멀어지며 점점 옅어진다.
  */
-export default function WalkingCharacter({ size = 190 }: { size?: number }) {
+export default function WalkingCharacter({ size = 200 }: { size?: number }) {
   const [frame, setFrame] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setFrame((f) => (f === 0 ? 1 : 0)), 450);
+    const id = setInterval(() => setFrame((f) => (f === 0 ? 1 : 0)), 620);
     return () => clearInterval(id);
   }, []);
 
   const w = size * (214 / 260);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="relative flex flex-col items-center">
       <div
         className="relative"
         style={{ width: w, height: size, overflow: "visible" }}
@@ -34,15 +36,20 @@ export default function WalkingCharacter({ size = 190 }: { size?: number }) {
         />
       </div>
 
-      {/* 트레드밀 발자국 (왼쪽으로 흐름) */}
-      <div className="relative mt-3 h-[16px] w-[240px] overflow-hidden">
-        <div className="treadmill absolute left-0 top-0 flex gap-7">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <span key={i} className="flex shrink-0 flex-col gap-0.5">
-              <span className="block h-[6px] w-[10px] rounded-full bg-ink-3/40" />
-              <span className="ml-2 block h-[6px] w-[10px] rounded-full bg-ink-3/40" />
-            </span>
-          ))}
+      {/* 발자국 레인: 오른쪽 끝(= 캐릭터 발)에서 생겨 왼쪽으로 흐르며 페이드 */}
+      <div className="relative mt-2 h-[18px] w-full">
+        <div
+          className="absolute right-1/2 top-0 h-full w-[230px] overflow-hidden"
+          style={{ maskImage: FADE_MASK, WebkitMaskImage: FADE_MASK }}
+        >
+          <div className="treadmill absolute left-0 top-0 flex gap-8">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <span key={i} className="flex shrink-0 flex-col gap-0.5">
+                <span className="block h-[6px] w-[11px] rounded-full bg-ink-3/55" />
+                <span className="ml-2 block h-[6px] w-[11px] rounded-full bg-ink-3/55" />
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>

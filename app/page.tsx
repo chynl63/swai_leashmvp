@@ -31,11 +31,6 @@ export default function Landing() {
 
   return (
     <main className="min-h-[100dvh] w-full bg-bg text-ink">
-      {/* ── 추첨 고지 배너 ── */}
-      <div className="bg-ochre px-4 py-2 text-center text-[13px] font-medium text-white">
-        🎁 체험하고 차단을 풀면 배달의민족 2만원권 추첨 (5명)
-      </div>
-
       {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-[60px] max-w-[1080px] items-center justify-between px-5">
@@ -56,7 +51,7 @@ export default function Landing() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden px-5 pb-20 pt-16 sm:pt-24">
+      <section className="relative overflow-hidden px-5 pb-20 pt-8 sm:pt-12">
         <div className="mx-auto flex max-w-[1080px] flex-col items-center text-center">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -79,11 +74,11 @@ export default function Landing() {
           </motion.h1>
 
           <motion.div
-            className="my-8"
+            className="my-7"
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
           >
-            <Character view="front" effect="sparkle" size={180} />
+            <Character view="front" effect="sparkle" size={150} />
           </motion.div>
 
           <motion.p
@@ -125,9 +120,13 @@ export default function Landing() {
             홈 버튼(아래 바)으로 나가 차단된 앱을 눌러 인터럽트를 체험해보세요.
           </p>
 
-          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-ochre/15 px-4 py-2 text-[14px] font-medium text-ochre">
-            🎁 끝까지 풀고 차단을 해제하면 배민 2만원권 추첨 (5명)
-          </div>
+          <motion.div
+            animate={{ scale: [1, 1.04, 1] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-ochre px-5 py-2.5 text-[15px] font-bold text-white shadow-[0_8px_24px_rgba(232,168,53,0.45)] sm:text-[17px]"
+          >
+            🎁 차단 뚫으면 배민 2만원권 쏜다 · 5명 추첨!
+          </motion.div>
 
           <div className="relative mx-auto mt-12 w-fit">
             <DemoTips />
