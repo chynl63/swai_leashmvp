@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Character from "@/components/Character";
 import Footprints from "@/components/Footprints";
 import PhoneDevice from "@/components/PhoneDevice";
+import DemoTips from "@/components/DemoTips";
 import AdviceForm from "@/components/AdviceForm";
 import { logVisit } from "@/lib/visitor";
 
@@ -43,15 +44,12 @@ export default function Landing() {
             <span className="text-[18px] font-bold tracking-tight">Leash</span>
           </div>
           <nav className="flex items-center gap-5 text-[14px] text-ink-2">
-            <a href="#demo" className="hover:text-ink">체험</a>
-            <a href="#how" className="hidden hover:text-ink sm:inline">작동 방식</a>
+            <a href="#how" className="hover:text-ink">작동 방식</a>
             <a
-              href="https://github.com/chynl63/swai_leashmvp"
-              target="_blank"
-              rel="noreferrer"
+              href="#demo"
               className="rounded-full bg-ink px-3.5 py-1.5 text-[13px] font-medium text-white"
             >
-              GitHub
+              체험하기
             </a>
           </nav>
         </div>
@@ -80,11 +78,19 @@ export default function Landing() {
             <span className="text-ochre">목줄</span>을 채워라
           </motion.h1>
 
+          <motion.div
+            className="my-8"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Character view="front" effect="sparkle" size={180} />
+          </motion.div>
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="mt-5 max-w-[440px] text-[16px] leading-relaxed text-ink-2"
+            className="max-w-[440px] text-[16px] leading-relaxed text-ink-2"
           >
             앱을 막는 건 누구나 합니다. Leash는 차단을 푸는 걸 어렵게 만듭니다.
             해제하려면 직접 정해둔 심리적 장벽을 통과해야 합니다.
@@ -94,27 +100,11 @@ export default function Landing() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.25 }}
-            className="mt-8 flex items-center gap-3"
+            className="mt-8"
           >
             <a href="#demo" className="btn-primary px-7 py-3.5 text-[15px]">
               직접 체험하기 ↓
             </a>
-            <a
-              href="https://github.com/chynl63/swai_leashmvp"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-[8px] px-5 py-3.5 text-[15px] font-medium text-ink-2 hover:text-ink"
-            >
-              소스 보기
-            </a>
-          </motion.div>
-
-          <motion.div
-            className="mt-10"
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <Character view="front" effect="sparkle" size={180} />
           </motion.div>
         </div>
       </section>
@@ -126,7 +116,7 @@ export default function Landing() {
             LIVE DEMO
           </span>
           <h2 className="mt-3 text-[30px] font-bold leading-tight sm:text-[40px]">
-            스크롤 말고, 직접 만져보세요
+            폰에 목줄, 직접 채워보세요
           </h2>
           <p className="mt-4 max-w-[460px] text-[15px] leading-relaxed text-white/55">
             아래 폰은 실제로 동작하는 데모입니다. 앱을 고르고{" "}
@@ -135,7 +125,12 @@ export default function Landing() {
             홈 버튼(아래 바)으로 나가 차단된 앱을 눌러 인터럽트를 체험해보세요.
           </p>
 
-          <div className="mt-12">
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-ochre/15 px-4 py-2 text-[14px] font-medium text-ochre">
+            🎁 끝까지 풀고 차단을 해제하면 배민 2만원권 추첨 (5명)
+          </div>
+
+          <div className="relative mx-auto mt-12 w-fit">
+            <DemoTips />
             <PhoneDevice />
           </div>
 
@@ -220,14 +215,6 @@ export default function Landing() {
             스마트폰에 목줄을 채워라. 실제 앱 차단은 iOS 네이티브 앱에서
             동작하며, 이 페이지는 핵심 플로우를 체험하는 웹 데모입니다.
           </p>
-          <a
-            href="https://github.com/chynl63/swai_leashmvp"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[13px] text-ochre underline-offset-2 hover:underline"
-          >
-            GitHub · chynl63/swai_leashmvp
-          </a>
           <p className="mt-1 text-[12px] text-white/30">SWAI 창업 과제 데모</p>
         </div>
       </footer>

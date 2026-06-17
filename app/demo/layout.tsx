@@ -1,6 +1,7 @@
 import StatusBar from "@/components/StatusBar";
 import DemoToggle from "@/components/DemoToggle";
 import HomeIndicator from "@/components/HomeIndicator";
+import RouteBeacon from "@/components/RouteBeacon";
 
 /**
  * 데모 "화면" 레이아웃 — 기기 베젤 없이 화면 콘텐츠만 채운다.
@@ -14,6 +15,7 @@ export default function DemoLayout({
 }) {
   return (
     <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-bg">
+      <RouteBeacon />
       <StatusBar />
       <div className="no-scrollbar relative flex flex-1 flex-col overflow-y-auto">
         {children}
