@@ -23,7 +23,8 @@ export function startSequence(router: RouterLike, sequence: BarrierType[]) {
  */
 export function advance(router: RouterLike, remaining: BarrierType[]) {
   if (remaining.length === 0) {
-    router.replace("/demo/transition?kind=hurt");
+    // 모든 벌칙 통과 → 응모 화면(해제 직전)으로
+    router.replace("/demo/entry");
     return;
   }
   const [next, ...rest] = remaining;

@@ -77,6 +77,13 @@ export function summaryFor(barriers: BarrierType[]): string {
     .join(" → ");
 }
 
+/**
+ * 검증 실험용 고정 벌칙 세트 (사용자 선택 비활성 — 마찰을 통제변수로 고정).
+ * 바꾸려면 이 배열만 수정. 너무 쉬우면 포기 신호가 안 나오니 '적당히 귀찮게'.
+ */
+export const FIXED_BARRIERS: BarrierType[] = ["math", "wait"];
+export const FIXED_GROUP_NAME = "집중 모드";
+
 /** 차단 시간 선택지 (분) */
 export const DURATIONS = [60, 120, 240, 360, 480] as const;
 

@@ -4,14 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLeash } from "@/lib/store";
 import { useMounted, useBlockTimer } from "@/lib/hooks";
-import {
-  PROFILES,
-  DURATIONS,
-  APPS,
-  CANON_ORDER,
-  BARRIER_LABEL,
-  summaryFor,
-} from "@/lib/profiles";
+import { DURATIONS, APPS, BARRIER_LABEL } from "@/lib/profiles";
 import TabBar from "@/components/TabBar";
 import TimerCard from "@/components/TimerCard";
 import Footprints from "@/components/Footprints";
@@ -35,10 +28,7 @@ export default function Home() {
 function Setup() {
   const router = useRouter();
   const {
-    groupName,
     barriers,
-    applyPreset,
-    toggleBarrier,
     blockedApps,
     toggleApp,
     durationMinutes,
@@ -56,7 +46,7 @@ function Setup() {
   };
   const durLabel = (m: number) => (m % 60 === 0 ? `${m / 60}시간` : `${m}분`);
 
-  const canStart = blockedApps.length > 0 && barriers.length > 0;
+  const canStart = blockedApps.length > 0;
   const start = () => {
     if (!canStart) return;
     startBlock();
@@ -68,27 +58,6 @@ function Setup() {
       <h1 className="text-[26px] font-bold text-ink">Leash</h1>
 
       <div className="glass-card flex flex-col gap-5 p-5">
-        {/* 빠른 설정 (프리셋) */}
-        <div>
-          <label className="text-[13px] text-ink-2">빠른 설정</label>
-          <div className="mt-2 flex gap-2">
-            {PROFILES.map((p) => (
-              <button
-                key={p.key}
-                onClick={() => applyPreset(p.key)}
-                className={`flex flex-1 flex-col items-center gap-1 rounded-xl border py-2.5 transition ${
-                  p.name === groupName
-                    ? "border-ochre bg-ochre-light"
-                    : "border-line bg-white"
-                }`}
-              >
-                <span className="text-[18px]">{p.badge}</span>
-                <span className="text-[12px] font-medium text-ink">{p.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* 앱 선택 */}
         <div>
           <label className="text-[13px] text-ink-2">묶을 앱</label>
@@ -135,43 +104,31 @@ function Setup() {
           </div>
         </div>
 
-        {/* 해제 벌칙 직접 선택 */}
+        {/* 해제 벌칙 (고정 — 변경 불가) */}
         <div>
           <label className="text-[13px] text-ink-2">
-            해제 벌칙 <span className="text-ink-3">(설정 후 변경 불가)</span>
+            해제 벌칙 <span className="text-ink-3">(고정 · 변경 불가)</span>
           </label>
-          <div className="mt-2 grid grid-cols-1 gap-2">
-            {CANON_ORDER.map((b) => {
-              const on = barriers.includes(b);
+          <div className="mt-2 flex flex-col gap-2">
+            {barriers.map((b, i) => {
               const meta = BARRIER_LABEL[b];
-              const order = on ? barriers.indexOf(b) + 1 : null;
               return (
-                <button
+                <div
                   key={b}
-                  onClick={() => toggleBarrier(b)}
-                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
-                    on ? "border-ochre bg-ochre-light" : "border-line bg-white"
-                  }`}
+                  className="flex items-center gap-3 rounded-xl border border-line bg-white px-3 py-2.5"
                 >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-ochre text-[11px] font-bold text-white">
+                    {i + 1}
+                  </span>
                   <span className="text-[18px]">{meta.emoji}</span>
                   <span className="flex-1 text-[14px] font-medium text-ink">
                     {meta.label}
                   </span>
                   <span className="text-[12px] text-ink-3">{meta.short}</span>
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                      on ? "bg-ochre text-white" : "bg-muted text-ink-3"
-                    }`}
-                  >
-                    {order ?? ""}
-                  </span>
-                </button>
+                </div>
               );
             })}
           </div>
-          <p className="mt-2 text-[12px] text-ink-3">
-            해제하려면 순서대로: {summaryFor(barriers)}
-          </p>
         </div>
 
         <button
@@ -183,7 +140,7 @@ function Setup() {
         </button>
         {!canStart && (
           <p className="-mt-2 text-center text-[12px] text-ink-3">
-            앱과 벌칙을 최소 1개씩 선택하세요
+            묶을 앱을 최소 1개 선택하세요
           </p>
         )}
       </div>

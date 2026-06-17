@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useLeash } from "@/lib/store";
 import { useBlockTimer, useMounted } from "@/lib/hooks";
 import { startSequence } from "@/lib/sequence";
 import { summaryFor } from "@/lib/profiles";
+import { logEvent } from "@/lib/log";
 import Character from "@/components/Character";
+import PrizeBanner from "@/components/PrizeBanner";
 
 export default function Interrupt() {
   const router = useRouter();
@@ -17,15 +19,29 @@ export default function Interrupt() {
   const isActive = useLeash((s) => s.isActive);
   const durationMinutes = useLeash((s) => s.durationMinutes);
   const { elapsedSec, totalSec } = useBlockTimer();
+  const logged = useRef(false);
 
   useEffect(() => {
     if (mounted && !isActive) router.replace("/demo");
   }, [mounted, isActive, router]);
 
+  // 인터럽트 도달 1회 로깅 (퍼널 시작점)
+  useEffect(() => {
+    if (mounted && isActive && !logged.current) {
+      logged.current = true;
+      logEvent("interrupt_reached");
+    }
+  }, [mounted, isActive]);
+
   if (!mounted || !isActive) return <div className="flex-1" />;
 
   // 벤치 조건: 2시간+ 산책 & 절반 이상 경과
   const benchEligible = durationMinutes >= 120 && elapsedSec >= totalSec / 2;
+
+  const startPenalty = () => {
+    logEvent("unblock_start", barriers.join("+"));
+    startSequence(router, barriers);
+  };
 
   return (
     <div className="flex flex-1 flex-col items-center px-6 pt-6">
@@ -46,10 +62,7 @@ export default function Interrupt() {
         </p>
       </div>
 
-      {/* 벌칙은 설정 시점에 확정됨 — 표시만 */}
-      <p className="mb-3 text-[12px] text-ink-3">
-        줄 끊기 벌칙 · {summaryFor(barriers)}
-      </p>
+      <PrizeBanner className="mb-3 w-full" />
 
       <div className="flex w-full flex-col gap-2.5 pb-6">
         {benchEligible && (
@@ -61,16 +74,16 @@ export default function Interrupt() {
           </button>
         )}
         <button
-          onClick={() => startSequence(router, barriers)}
+          onClick={startPenalty}
           className="btn-soft py-3.5 text-[15px]"
         >
-          벌칙을 수행하고 산책을 강제종료하기
+          벌칙 풀고 차단 해제하기 · {summaryFor(barriers)}
         </button>
         <button
           onClick={() => router.replace("/demo/transition?kind=resist")}
           className="btn-primary py-3.5 text-[15px]"
         >
-          앱 끄고 산책하도록 놔두기
+          그냥 두고 산책 계속하기
         </button>
       </div>
     </div>

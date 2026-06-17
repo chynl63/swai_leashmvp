@@ -30,6 +30,11 @@ export default function Landing() {
 
   return (
     <main className="min-h-[100dvh] w-full bg-bg text-ink">
+      {/* ── 추첨 고지 배너 ── */}
+      <div className="bg-ochre px-4 py-2 text-center text-[13px] font-medium text-white">
+        🎁 체험하고 차단을 풀면 배달의민족 2만원권 추첨 (5명)
+      </div>
+
       {/* ── Header ── */}
       <header className="sticky top-0 z-50 border-b border-line/70 bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-[60px] max-w-[1080px] items-center justify-between px-5">
@@ -124,10 +129,10 @@ export default function Landing() {
             스크롤 말고, 직접 만져보세요
           </h2>
           <p className="mt-4 max-w-[460px] text-[15px] leading-relaxed text-white/55">
-            아래 폰은 실제로 동작하는 데모입니다. 프로필을 고르고{" "}
+            아래 폰은 실제로 동작하는 데모입니다. 앱을 고르고{" "}
             <span className="text-ochre">목줄 채우기</span>를 누른 뒤,
             <br className="hidden sm:block" />
-            산책 화면에서 “차단된 앱 열어보기”로 인터럽트를 체험해보세요.
+            홈 버튼(아래 바)으로 나가 차단된 앱을 눌러 인터럽트를 체험해보세요.
           </p>
 
           <div className="mt-12">

@@ -1,10 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
-  PROFILES,
   type BarrierType,
-  profileByKey,
-  sortBarriers,
+  FIXED_BARRIERS,
+  FIXED_GROUP_NAME,
 } from "./profiles";
 import { logEvent } from "./log";
 
@@ -38,9 +37,6 @@ type LeashState = {
   // actions
   setNickname: (v: string) => void;
   toggleDemoFast: () => void;
-  applyPreset: (key: string) => void;
-  toggleBarrier: (b: BarrierType) => void;
-  setGroupName: (v: string) => void;
   toggleApp: (name: string) => void;
   setDuration: (min: number) => void;
   startBlock: () => void;
@@ -62,8 +58,8 @@ function nowTimeLabel(): string {
 const DEFAULTS = {
   nickname: "주인님",
   demoFast: true,
-  groupName: PROFILES[0].name,
-  barriers: [...PROFILES[0].sequence] as BarrierType[],
+  groupName: FIXED_GROUP_NAME,
+  barriers: [...FIXED_BARRIERS] as BarrierType[],
   blockedApps: ["인스타그램", "유튜브", "틱톡"],
   durationMinutes: 120,
   isActive: false,
@@ -83,22 +79,6 @@ export const useLeash = create<LeashState>()(
 
       setNickname: (v) => set({ nickname: v }),
       toggleDemoFast: () => set((s) => ({ demoFast: !s.demoFast })),
-
-      applyPreset: (key) => {
-        const p = profileByKey(key);
-        set({ groupName: p.name, barriers: sortBarriers([...p.sequence]) });
-      },
-
-      toggleBarrier: (b) =>
-        set((s) => {
-          const has = s.barriers.includes(b);
-          const next = has
-            ? s.barriers.filter((x) => x !== b)
-            : [...s.barriers, b];
-          return { barriers: sortBarriers(next), groupName: "커스텀 차단" };
-        }),
-
-      setGroupName: (v) => set({ groupName: v }),
       toggleApp: (name) =>
         set((s) => ({
           blockedApps: s.blockedApps.includes(name)
@@ -191,6 +171,15 @@ export const useLeash = create<LeashState>()(
 
       reset: () => set({ ...DEFAULTS }),
     }),
-    { name: "leash-demo" }
+    {
+      name: "leash-demo",
+      // 고정 벌칙/그룹명은 저장하지 않음 → 항상 통제된 값으로 시작
+      partialize: (s) => {
+        const { barriers, groupName, ...rest } = s;
+        void barriers;
+        void groupName;
+        return rest as LeashState;
+      },
+    }
   )
 );

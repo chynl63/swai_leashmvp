@@ -20,7 +20,7 @@ export default function GiveUpBar({ barrier }: { barrier?: string }) {
         onClick={giveUp}
         className="rounded-full bg-muted px-3.5 py-1.5 text-[12px] font-medium text-ink-2 active:scale-95"
       >
-        ✕ 포기하고 산책 잇기
+        ✕ 포기 (응모도 포기)
       </button>
     </div>
   );
