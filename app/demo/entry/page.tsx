@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { logEvent } from "@/lib/log";
 import { sheetInsert } from "@/lib/sheetdb";
+import { makeId } from "@/lib/id";
 import Character from "@/components/Character";
 
 /**
@@ -41,7 +42,7 @@ export default function EntryPage() {
       const value = email.trim();
       logEvent("entry", value || "(이메일 미입력)");
       sheetInsert("entries", {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        id: makeId(),
         email: value,
         created_at: new Date().toISOString(),
       }).catch(() => {});

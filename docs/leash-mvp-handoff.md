@@ -88,7 +88,7 @@
 ### `events` 탭 — 모든 행동 이벤트 + 설문 (분석의 핵심)
 | 열 | 내용 |
 |----|------|
-| `id` | 고유값(타임스탬프-랜덤) |
+| `id` | 6자 코드(원본 방식 `Math.random().toString(36).substring(2,8).toUpperCase()`). 이벤트마다 고유(행 식별용) |
 | `type` | 이벤트 종류 (아래 6절 표 참고) |
 | `detail` | 종류별 부가정보(문자열) |
 | `created_at` | ISO 타임스탬프 |
@@ -97,6 +97,8 @@
 ### `visitors` 탭 — 방문 로깅 (세션당 1회, 랜딩 진입 시)
 | id | landingUrl | ip | referer | time_stamp | utm | device | email | advice |
 → **A1 헤더가 반드시 `id`여야 함**(과거 스키마라 `GN4LDM`이었으면 `id`로 변경해야 로깅됨). email/advice 열은 방문 로깅에선 비워둠.
+→ **id = 방문자 UV**(원본 `getUVfromCookie` 동일): 쿠키 `user`(180일)에 저장해 **같은 사용자는 동일 id**. Apps Script가 같은 id면 업서트(행 갱신)하므로 **방문자 1명 = 1행**.
+→ 주의: 이 탭엔 **예전 도파민락커 프로젝트의 레거시 데이터**가 섞여 있을 수 있음(landingUrl이 celadon-gelato/127.0.0.1). Leash 분석 시 분리 필요.
 
 ### `advice` 탭 — 랜딩 피드백 폼
 | id | email | advice | created_at |

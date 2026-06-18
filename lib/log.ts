@@ -4,12 +4,13 @@
  * Sheets URL이 없으면 조용히 무시한다. 전송 실패도 데모를 막지 않는다(fire-and-forget).
  */
 import { hasSheetDB, sheetInsert } from "./sheetdb";
+import { makeId } from "./id";
 
 export function logEvent(type: string, detail = ""): void {
   if (!hasSheetDB || typeof window === "undefined") return;
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  // 각 이벤트는 별도 행 → 매번 고유한 6자 id (UV 재사용 시 업서트로 덮어써짐)
   sheetInsert("events", {
-    id,
+    id: makeId(),
     type,
     detail,
     created_at: new Date().toISOString(),

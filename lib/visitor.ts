@@ -1,11 +1,13 @@
 /**
  * 방문자 로깅 → Google Sheets `visitors` 탭.
- * 기존 스키마에 맞춤: id | landingUrl | ip | referer | time_stamp | utm | device | email | advice
- * (A열 헤더가 `id` 여야 insert가 동작합니다.)
+ * 원본 index.html 방식과 동일: 쿠키 UV id + 로컬 time_stamp + 9개 필드 전부.
+ * 스키마: id | landingUrl | ip | referer | time_stamp | utm | device | email | advice
+ * (A열 헤더가 `id` 여야 insert 동작)
  *
- * 세션당 1회만 기록한다(sessionStorage 가드).
+ * 세션당 1회 호출(중복 API 방지). 같은 사용자는 쿠키 UV가 같아 같은 행으로 업서트됨.
  */
 import { hasSheetDB, sheetInsert } from "./sheetdb";
+import { getUV, timeStamp } from "./id";
 
 const ONCE_KEY = "leash-visit-logged";
 
@@ -30,17 +32,18 @@ export function logVisit(): void {
 
   const params = new URLSearchParams(window.location.search);
   const device = window.innerWidth < 768 ? "mobile" : "desktop";
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   fetchIp().then((ip) => {
     sheetInsert("visitors", {
-      id,
+      id: getUV(),
       landingUrl: window.location.href,
       ip,
       referer: document.referrer || "",
-      time_stamp: new Date().toISOString(),
+      time_stamp: timeStamp(),
       utm: params.get("utm") ?? "",
       device,
+      email: "",
+      advice: "",
     }).catch(() => {});
   });
 }

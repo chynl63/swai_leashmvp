@@ -7,6 +7,7 @@
  *   - Sheets URL이 없으면 BroadcastChannel/localStorage 폴백 (오프라인 데모)
  */
 import { hasSheetDB, sheetInsert, sheetRead } from "./sheetdb";
+import { makeId } from "./id";
 
 export type ApprovalStatus = "pending" | "approved" | "denied";
 export type Approval = {
@@ -23,10 +24,7 @@ const channelName = "leash-approval";
 const lsKey = (token: string) => LS_PREFIX + token;
 
 export function makeToken(): string {
-  return (
-    Math.random().toString(36).slice(2, 8) +
-    Math.random().toString(36).slice(2, 8)
-  );
+  return makeId();
 }
 
 function broadcast(token: string, status: ApprovalStatus) {
