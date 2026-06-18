@@ -11,8 +11,10 @@ import { logEvent } from "@/lib/log";
 export default function GiveUpBar({ barrier }: { barrier?: string }) {
   const router = useRouter();
   const giveUp = () => {
+    // 포기자 존재 로깅 + 어느 벌칙에서 포기했는지
     logEvent("penalty_giveup", barrier ?? "");
-    router.replace("/demo/transition?kind=resist");
+    // 포기 사유 설문으로
+    router.replace(`/demo/giveup?barrier=${barrier ?? ""}`);
   };
   return (
     <div className="flex justify-end pt-3">
