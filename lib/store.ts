@@ -173,6 +173,9 @@ export const useLeash = create<LeashState>()(
     }),
     {
       name: "leash-demo",
+      // 스키마가 바뀌었으므로 구버전 저장 상태는 폐기(초기값으로 시작) → 오래된 상태로 인한 크래시 방지
+      version: 2,
+      migrate: () => ({}) as unknown as LeashState,
       // 고정 벌칙/그룹명은 저장하지 않음 → 항상 통제된 값으로 시작
       partialize: (s) => {
         const { barriers, groupName, ...rest } = s;
