@@ -4,13 +4,14 @@
  * Sheets URL이 없으면 조용히 무시한다. 전송 실패도 데모를 막지 않는다(fire-and-forget).
  */
 import { hasSheetDB, sheetInsert } from "./sheetdb";
-import { makeId } from "./id";
+import { makeId, getUV } from "./id";
 
 export function logEvent(type: string, detail = ""): void {
   if (!hasSheetDB || typeof window === "undefined") return;
-  // 각 이벤트는 별도 행 → 매번 고유한 6자 id (UV 재사용 시 업서트로 덮어써짐)
+  // id: 행 식별용(매번 고유) / uv: 사람 식별용(같은 사람=같은 값, visitors id와 동일)
   sheetInsert("events", {
     id: makeId(),
+    uv: getUV(),
     type,
     detail,
     created_at: new Date().toISOString(),
