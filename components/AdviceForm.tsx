@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { sheetInsert } from "@/lib/sheetdb";
+import { makeId } from "@/lib/id";
 
 type State = "idle" | "sending" | "sent" | "error";
 
@@ -17,7 +18,7 @@ export default function AdviceForm() {
     e.preventDefault();
     if (!valid || state === "sending") return;
     setState("sending");
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const id = makeId();
     try {
       const ok = await sheetInsert("advice", {
         id,
