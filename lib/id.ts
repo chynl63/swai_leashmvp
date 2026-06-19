@@ -20,12 +20,3 @@ export function getUV(): string {
   document.cookie = `user=${hash}; expires=${expires}; path=/`;
   return hash;
 }
-
-/** 원본 getTimeStamp()와 동일한 로컬 포맷: YYYY-MM-DD HH:MM:SS */
-export function timeStamp(): string {
-  const d = new Date();
-  const p = (n: number) => (n < 10 ? "0" + n : "" + n);
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(
-    d.getHours()
-  )}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
-}

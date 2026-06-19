@@ -7,7 +7,7 @@
  * 세션당 1회 호출(중복 API 방지). 같은 사용자는 쿠키 UV가 같아 같은 행으로 업서트됨.
  */
 import { hasSheetDB, sheetInsert } from "./sheetdb";
-import { getUV, timeStamp } from "./id";
+import { getUV } from "./id";
 
 const ONCE_KEY = "leash-visit-logged";
 
@@ -39,7 +39,7 @@ export function logVisit(): void {
       landingUrl: window.location.href,
       ip,
       referer: document.referrer || "",
-      time_stamp: timeStamp(),
+      time_stamp: new Date().toISOString(), // UTC(국제표준시) — 다른 탭과 통일
       utm: params.get("utm") ?? "",
       device,
       email: "",
